@@ -1,6 +1,4 @@
-Assessment : Module-4) Introduction To Oops Programming
-
-
+Assessment :
 ● Create a lecture management System
 #include <iostream>
 #include <string>
@@ -105,3 +103,4 @@ cout << "Invalid choice! Please try again." << endl;
 
 return 0;
 }
+
