@@ -1,0 +1,250 @@
+Assessment 2: Introduction to DBMS
+
+• Write SQL query to solve the problem given below
+
+
+
+
+Here we are talking about the Bank related information of a person.
+
+For which you need to create three tables named as Bank, Account holder and Loan table.
+
+And solve the problem stated below.
+
+Create a Bank table, attributes are: branch id, branch name, branch city.
+
+Create a Loan table, attributes are: loan no, branch id, account holder’s id, loan amount and loan type.
+
+Create a table named as Account holder for the same scenario containing the attributes are account holder’s id, account no, account holder’s name, city, contact, date of account created, account status (active or terminated), account type and balance.
+
+
+
+
+•Consider an example where there’s an account holder table where we are doing an intra bank transfer i.e. a person holding account A is trying to transfer $100 to account B.
+
+•for this you have to make a transaction in sql which can transfer fund from account A to B.
+
+•Make sure after the transaction the account information have to be updated for both the credit account and the debited account.
+
+
+
+
+•Also fetch the details of the account holder who are related from the same city
+
+•Write a query to fetch account number and account holder name, whose accounts were created after 15th of any month
+
+•Write a query to display the city name and count the branches in that city. Give the count of branches an alias name of Count_Branch
+
+•Write a query to display the account holder’s id, account holder’s name, branch id, and loan amount for people who have taken loans. (NOTE : use sql  join concept to solve the query)
+
+
+
+
+Make sure to make your code clean neat
+
+
+
+
+1. Create Tables
+
+-- Bank table
+
+CREATE TABLE Bank (
+
+    branch_id      INT PRIMARY KEY,
+
+    branch_name    VARCHAR(100) NOT NULL,
+
+    branch_city    VARCHAR(100) NOT NULL
+
+);
+
+
+
+
+-- Account Holder table
+
+CREATE TABLE Account_Holder (
+
+    acc_holder_id      INT PRIMARY KEY,
+
+    account_no         VARCHAR(20) UNIQUE NOT NULL,
+
+    acc_holder_name    VARCHAR(100) NOT NULL,
+
+    city               VARCHAR(100),
+
+    contact            VARCHAR(15),
+
+    date_created       DATE NOT NULL,
+
+    account_status     VARCHAR(20) CHECK (account_status IN ('Active', 'Terminated')),
+
+    account_type       VARCHAR(50),
+
+    balance            DECIMAL(12,2) DEFAULT 0.00
+
+);
+
+
+
+
+-- Loan table
+
+CREATE TABLE Loan (
+
+    loan_no        INT PRIMARY KEY,
+
+    branch_id      INT,
+
+    acc_holder_id  INT,
+
+    loan_amount    DECIMAL(12,2) NOT NULL,
+
+    loan_type      VARCHAR(50),
+
+    FOREIGN KEY (branch_id) REFERENCES Bank(branch_id),
+
+    FOREIGN KEY (acc_holder_id) REFERENCES Account_Holder(acc_holder_id)
+
+);
+
+
+
+
+
+
+
+2. Intra-Bank Transfer Transaction ($100 from Account A → Account B)
+
+This SQL transaction transfers $100 from account A123 to account B456. The START (BEGIN) TRANSACTION, COMMIT, and ROLLBACK statements ensure that both accounts are updated together. If any part of the process fails, all changes are reversed to prevent data inconsistencies.
+
+
+
+
+-- Example: Transfer $100 from account_no = 'A123' to account_no = 'B456'
+
+START TRANSACTION;
+
+
+
+
+-- Debit Account A
+
+UPDATE Account_Holder
+
+SET balance = balance - 100
+
+WHERE account_no = 'A123';
+
+
+
+
+-- Credit Account B
+
+UPDATE Account_Holder
+
+SET balance = balance + 100
+
+WHERE account_no = 'B456';
+
+
+
+
+-- Commit if both succeed
+
+COMMIT
+
+
+
+
+-- In case of failure, you can use ROLLBACK
+
+-- ROLLBACK;
+
+
+
+
+
+
+
+To ensure there is no overdraft, we add a condition:
+
+UPDATE Account_Holder
+
+SET balance = balance - 100
+
+WHERE account_no = 'A123' AND balance >= 100;
+
+
+
+
+
+
+
+3. Fetch Account Holders from the Same City
+
+SELECT *
+
+FROM Account_Holder a1
+
+WHERE EXISTS (
+
+    SELECT 1
+
+    FROM Account_Holder a2
+
+    WHERE a1.city = a2.city
+
+      AND a1.acc_holder_id <> a2.acc_holder_id
+
+);
+
+
+
+
+4. Accounts Created After the 15th of Any Month
+
+SELECT account_no, acc_holder_name
+
+FROM Account_Holder
+
+WHERE DAY(date_created) > 15;
+
+
+
+
+
+
+
+
+
+
+5. City Name and Count of Branches
+
+SELECT branch_city, COUNT(branch_id) AS Count_Branch
+
+FROM Bank
+
+GROUP BY branch_city;
+
+
+
+
+6. Join Query: Loan Details with Account Holders
+
+SELECT ah.acc_holder_id,
+
+       ah.acc_holder_name,
+
+       l.branch_id,
+
+       l.loan_amount
+
+FROM Account_Holder ah
+
+JOIN Loan l
+
+  ON ah.acc_holder_id = l.acc_holder_id;
+
+
