@@ -1,4 +1,4 @@
-Assessment 2: Introduction to DBMS
+Module 5 Assessment: Introduction to DBMS
 
 • Write SQL query to solve the problem given below
 
@@ -246,5 +246,6 @@ FROM Account_Holder ah
 JOIN Loan l
 
   ON ah.acc_holder_id = l.acc_holder_id;
+
 
 
